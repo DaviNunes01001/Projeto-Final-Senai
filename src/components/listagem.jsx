@@ -28,7 +28,7 @@ function Listagem() {
       }
 
     useEffect(() => {
-        buscarProdutos();
+        buscarProdutos()
       }, []);
 
     // =========================
