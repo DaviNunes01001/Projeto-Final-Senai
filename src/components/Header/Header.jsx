@@ -8,9 +8,10 @@ function Header() {
         <h1>Gerenciador de Produtos</h1>
         <p>Uma produção dos Manos Inc</p>
         <nav className={styles.nav}>
-            <Link to="/">Home</Link>
-            <Link to="/Contato">Contato</Link>
-            <Link to="/Produto">Produto</Link>
+          <Link to="/">Home</Link>
+          <Link to="/contato">Contato</Link>
+          <Link to="/sobre">Sobre</Link>
+          <a href="http://localhost:3000">Gerenciador</a>
         </nav>
       </div>
     </>
