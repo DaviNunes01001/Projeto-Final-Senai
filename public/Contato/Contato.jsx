@@ -1,8 +1,10 @@
 import style from '.Contato.module.css'
+import Header from '../../src/components/Header/Header.jsx'
 
 function Contato() {
     return (
         <>
+            <Header />
         
             <div className='ola'>
                 <h1>Entre em Contato</h1>
