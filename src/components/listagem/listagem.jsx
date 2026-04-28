@@ -4,34 +4,24 @@ import styles from "./listagem.module.css";
 import Footer from "../Footer/Footer";
 
 function Listagem() {
-  // =========================
-  // STATES
-  // =========================
   const [produtos, setProdutos] = useState([]);
-
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
   const [estoque, setEstoque] = useState("");
   const [categoria, setCategoria] = useState("");
-
   const [editandoId, setEditandoId] = useState(null);
-
   const [buscaTipo, setBuscaTipo] = useState("nome");
   const [buscaValor, setBuscaValor] = useState("");
-
   const [loading, setLoading] = useState(false);
 
-  // =========================
-  // GET TODOS
-  // =========================
   async function carregarProdutos() {
     setLoading(true);
-
     try {
       const res = await fetch(API_URL);
+      if (!res.ok) throw new Error();
       const data = await res.json();
       setProdutos(data);
-    } catch (err) {
+    } catch {
       alert("Erro ao carregar produtos");
     } finally {
       setLoading(false);
@@ -42,16 +32,13 @@ function Listagem() {
     carregarProdutos();
   }, []);
 
-  // =========================
-  // CREATE / UPDATE
-  // =========================
   async function salvarProduto(e) {
     e.preventDefault();
 
     const dados = {
       nome,
-      preco,
-      estoque,
+      preco: Number(preco),
+      estoque: Number(estoque),
       categoria,
     };
 
@@ -62,49 +49,38 @@ function Listagem() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dados),
         });
-        alert("Produto atualizado!");
       } else {
         await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dados),
         });
-        alert("Produto criado!");
       }
 
       limparFormulario();
       carregarProdutos();
-    } catch (err) {
-      alert("Erro ao salvar produto");
+    } catch {
+      alert("Erro ao salvar");
     }
   }
 
-  // =========================
-  // DELETE
-  // =========================
   async function deletarProduto(id) {
-    if (!confirm("Deseja deletar este produto?")) return;
+    if (!window.confirm("Deseja deletar?")) return;
 
     try {
-      await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-      });
-
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
       carregarProdutos();
-    } catch (err) {
+    } catch {
       alert("Erro ao deletar");
     }
   }
 
-  // =========================
-  // EDITAR
-  // =========================
-  function editarProduto(produto) {
-    setEditandoId(produto.id);
-    setNome(produto.nome);
-    setPreco(produto.preco);
-    setEstoque(produto.estoque);
-    setCategoria(produto.categoria);
+  function editarProduto(p) {
+    setEditandoId(p.id);
+    setNome(p.nome);
+    setPreco(p.preco);
+    setEstoque(p.estoque);
+    setCategoria(p.categoria);
   }
 
   function limparFormulario() {
@@ -115,132 +91,91 @@ function Listagem() {
     setCategoria("");
   }
 
-  // =========================
-  // BUSCA
-  // =========================
   async function buscarProdutos() {
-    if (!buscaValor) {
-      carregarProdutos();
-      return;
-    }
+    if (!buscaValor) return carregarProdutos();
 
     setLoading(true);
-
     try {
       const url =
         buscaTipo === "nome"
           ? `${API_URL}/nome/${buscaValor}`
-          : `${API_URL}/${buscaValor}`;
+          : `${API_URL}/id${Number(buscaValor)}`;
 
       const res = await fetch(url);
       let data = await res.json();
 
-      if (!Array.isArray(data)) {
-        data = data ? [data] : [];
-      }
+      if (!Array.isArray(data)) data = data ? [data] : [];
 
       setProdutos(data);
-    } catch (err) {
+    } catch {
       alert("Erro na busca");
     } finally {
       setLoading(false);
     }
   }
 
-  // =========================
-  // RENDER
-  // =========================
   return (
     <>
     <div className={styles.containerALL}>
       <h2 className={styles.titulo}>
-        {editandoId ? `Editando Produto #${editandoId}` : "Adicionar Produto"}
+        {editandoId ? "Editando Produto" : "Adicionar Produto"}
       </h2>
 
       <form className={styles.formContainer} onSubmit={salvarProduto}>
-        <input
-          className={styles.form}
-          placeholder="Nome"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
-
-        <input
-          className={styles.form}
-          type="number"
-          placeholder="Preço"
-          value={preco}
-          onChange={(e) => setPreco(e.target.value)}
-        />
-
-        <input
-          className={styles.form}
-          type="number"
-          placeholder="Estoque"
-          value={estoque}
-          onChange={(e) => setEstoque(e.target.value)}
-        />
-
-        <input
-          className={styles.form}
-          placeholder="Categoria"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-        />
+        <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome" />
+        <input type="number" value={preco} onChange={(e) => setPreco(e.target.value)} placeholder="Preço" />
+        <input type="number" value={estoque} onChange={(e) => setEstoque(e.target.value)} placeholder="Estoque" />
+        <input value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Categoria" />
 
         <div className={styles.containerBnt}>
           <button type="submit">{editandoId ? "Atualizar" : "Salvar"}</button>
-
-          <button type="button" onClick={limparFormulario}>
-            Limpar
-          </button>
+          <button type="button" onClick={limparFormulario}>Limpar</button>
         </div>
       </form>
 
       <div className={styles.AreaLista}>
         <h2>Lista de Produtos</h2>
-
-        <button onClick={carregarProdutos}>🔄 Recarregar</button>
+        <button onClick={carregarProdutos}>Recarregar</button>
 
         {loading && <p>Carregando...</p>}
+        {!loading && produtos.length === 0 && <p>Nenhum produto</p>}
 
-        {produtos.length === 0 && !loading && <p>Nenhum produto encontrado</p>}
+        <div className={styles.grid}>
+          {produtos.map((p) => (
+            <div className={styles.card} key={p.id}>
+              <p><b>{p.nome}</b></p>
+              <p>R$ {Number(p.preco || 0).toFixed(2)}</p>
+              <p>Estoque: {p.estoque}</p>
+              <p>ID: {p.id}</p>
+              <p>{p.categoria}</p>
 
-        {produtos.map((p) => (
-          <div className={styles.containerButton} key={p.id}>
-            <p>ID: {p.id}</p>
-            <p>Nome: {p.nome}</p>
-            <p>Preço: R$ {Number(p.preco).toFixed(2)}</p>
-            <p>Estoque: {p.estoque}</p>
-            <p>Categoria: {p.categoria}</p>
-
-            <button onClick={() => editarProduto(p)}>✏️</button>
-            <button onClick={() => deletarProduto(p.id)}>🗑️</button>
-          </div>
-        ))}
+              <div className={styles.actions}>
+                <button onClick={() => editarProduto(p)}>Editar</button>
+                <button onClick={() => deletarProduto(p.id)}>Excluir</button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className={styles.containerProd}>
-        <h2>Buscar Produtos</h2>
+        <h2>Buscar</h2>
 
-        <select
-          value={buscaTipo}
-          onChange={(e) => setBuscaTipo(e.target.value)}
-        >
-          <option className={styles.option} value="nome">Nome</option>
+        <select value={buscaTipo} onChange={(e) => setBuscaTipo(e.target.value)}>
+          <option value="nome">Nome</option>
           <option value="id">ID</option>
         </select>
 
         <input
-          placeholder="Digite a busca"
           value={buscaValor}
           onChange={(e) => setBuscaValor(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && buscarProdutos()}
+          placeholder="Buscar..."
         />
-      </div>
-      <div className={styles.containerBnt}>
-      <button onClick={buscarProdutos}>Buscar</button>
-      <button onClick={carregarProdutos}>Mostrar todos</button>
+
+        <div className={styles.containerBnt}>
+          <button onClick={buscarProdutos}>Buscar</button>
+          <button onClick={carregarProdutos}>Todos</button>
+        </div>
       </div>
     </div>
     <Footer />
