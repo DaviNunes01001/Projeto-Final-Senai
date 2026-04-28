@@ -99,15 +99,20 @@ function Listagem() {
       const url =
         buscaTipo === "nome"
           ? `${API_URL}/nome/${buscaValor}`
-          : `${API_URL}/id${Number(buscaValor)}`;
+          : `${API_URL}/${Number(buscaValor)}`;
 
       const res = await fetch(url);
-      let data = await res.json();
+
+      if (!res.ok) throw new Error("Erro na resposta");
+
+      const text = await res.text();
+      let data = text ? JSON.parse(text) : [];
 
       if (!Array.isArray(data)) data = data ? [data] : [];
 
       setProdutos(data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert("Erro na busca");
     } finally {
       setLoading(false);
@@ -116,69 +121,69 @@ function Listagem() {
 
   return (
     <>
-    <div className={styles.containerALL}>
-      <h2 className={styles.titulo}>
-        {editandoId ? "Editando Produto" : "Adicionar Produto"}
-      </h2>
+      <div className={styles.containerALL}>
+        <h2 className={styles.titulo}>
+          {editandoId ? "Editando Produto" : "Adicionar Produto"}
+        </h2>
 
-      <form className={styles.formContainer} onSubmit={salvarProduto}>
-        <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome" />
-        <input type="number" value={preco} onChange={(e) => setPreco(e.target.value)} placeholder="Preço" />
-        <input type="number" value={estoque} onChange={(e) => setEstoque(e.target.value)} placeholder="Estoque" />
-        <input value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Categoria" />
+        <form className={styles.formContainer} onSubmit={salvarProduto}>
+          <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome" />
+          <input type="number" value={preco} onChange={(e) => setPreco(e.target.value)} placeholder="Preço" />
+          <input type="number" value={estoque} onChange={(e) => setEstoque(e.target.value)} placeholder="Estoque" />
+          <input value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Categoria" />
 
-        <div className={styles.containerBnt}>
-          <button type="submit">{editandoId ? "Atualizar" : "Salvar"}</button>
-          <button type="button" onClick={limparFormulario}>Limpar</button>
-        </div>
-      </form>
+          <div className={styles.containerBnt}>
+            <button type="submit">{editandoId ? "Atualizar" : "Salvar"}</button>
+            <button type="button" onClick={limparFormulario}>Limpar</button>
+          </div>
+        </form>
 
-      <div className={styles.AreaLista}>
-        <h2>Lista de Produtos</h2>
-        <button onClick={carregarProdutos}>Recarregar</button>
+        <div className={styles.AreaLista}>
+          <h2>Lista de Produtos</h2>
+          <button onClick={carregarProdutos}>Recarregar</button>
 
-        {loading && <p>Carregando...</p>}
-        {!loading && produtos.length === 0 && <p>Nenhum produto</p>}
+          {loading && <p>Carregando...</p>}
+          {!loading && produtos.length === 0 && <p>Nenhum produto</p>}
 
-        <div className={styles.grid}>
-          {produtos.map((p) => (
-            <div className={styles.card} key={p.id}>
-              <p><b>{p.nome}</b></p>
-              <p>R$ {Number(p.preco || 0).toFixed(2)}</p>
-              <p>Estoque: {p.estoque}</p>
-              <p>ID: {p.id}</p>
-              <p>{p.categoria}</p>
+          <div className={styles.grid}>
+            {produtos.map((p) => (
+              <div className={styles.card} key={p.id}>
+                <p><b>{p.nome}</b></p>
+                <p>R$ {Number(p.preco || 0).toFixed(2)}</p>
+                <p>Estoque: {p.estoque}</p>
+                <p>ID: {p.id}</p>
+                <p>{p.categoria}</p>
 
-              <div className={styles.actions}>
-                <button onClick={() => editarProduto(p)}>Editar</button>
-                <button onClick={() => deletarProduto(p.id)}>Excluir</button>
+                <div className={styles.actions}>
+                  <button onClick={() => editarProduto(p)}>Editar</button>
+                  <button onClick={() => deletarProduto(p.id)}>Excluir</button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.containerProd}>
+          <h2>Buscar</h2>
+
+          <select value={buscaTipo} onChange={(e) => setBuscaTipo(e.target.value)}>
+            <option value="nome">Nome</option>
+            <option value="id">ID</option>
+          </select>
+
+          <input
+            value={buscaValor}
+            onChange={(e) => setBuscaValor(e.target.value)}
+            placeholder="Buscar..."
+          />
+
+          <div className={styles.containerBnt}>
+            <button onClick={buscarProdutos}>Buscar</button>
+            <button onClick={carregarProdutos}>Todos</button>
+          </div>
         </div>
       </div>
-
-      <div className={styles.containerProd}>
-        <h2>Buscar</h2>
-
-        <select value={buscaTipo} onChange={(e) => setBuscaTipo(e.target.value)}>
-          <option value="nome">Nome</option>
-          <option value="id">ID</option>
-        </select>
-
-        <input
-          value={buscaValor}
-          onChange={(e) => setBuscaValor(e.target.value)}
-          placeholder="Buscar..."
-        />
-
-        <div className={styles.containerBnt}>
-          <button onClick={buscarProdutos}>Buscar</button>
-          <button onClick={carregarProdutos}>Todos</button>
-        </div>
-      </div>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 }
