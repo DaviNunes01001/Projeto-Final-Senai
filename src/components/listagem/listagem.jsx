@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import API_URL from "../../../services/api";
 import styles from "./listagem.module.css";
-import Footer from "../Footer/Footer";
 
 function Listagem() {
   const [produtos, setProdutos] = useState([]);
@@ -178,7 +177,6 @@ function Listagem() {
         </div>
       </div>
     </div>
-    <Footer />
     </>
   );
 }
