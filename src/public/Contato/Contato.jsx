@@ -1,5 +1,5 @@
-import styles from '.Contato.module.css'
-import Header from '../../src/components/Header/Header.jsx'
+import styles from './Contato.module.css'
+import Header from '../../components/Header/Header'
 
 function Contato() {
     return (
