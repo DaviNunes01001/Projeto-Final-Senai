@@ -9,123 +9,140 @@ function Listagem() {
 
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
+  const [estoque, setEstoque] = useState("");
+  const [categoria, setCategoria] = useState("");
 
-  const [idEditando, setIdEditando] = useState(null);
-  const [nomeEditado, setNomeEditado] = useState("");
-  const [precoEditado, setPrecoEditado] = useState("");
+  const [editandoId, setEditandoId] = useState(null);
+
+  const [buscaTipo, setBuscaTipo] = useState("nome");
+  const [buscaValor, setBuscaValor] = useState("");
+
+  const [loading, setLoading] = useState(false);
 
   // =========================
-  // GET
+  // GET TODOS
   // =========================
-  async function buscarProdutos() {
+  async function carregarProdutos() {
+      setLoading(true);
+
       try {
-            const resposta = await fetch(API_URL);
-            const dados = await resposta.json();
-            setProdutos(dados);
-          } catch (erro) {
-                console.log("Erro ao buscar produtos:", erro);
-              }
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            setProdutos(data);
+          } catch (err) {
+                alert("Erro ao carregar produtos");
+              } finally {
+                    setLoading(false);
+                  }
       }
 
     useEffect(() => {
-        buscarProdutos()
+        carregarProdutos();
       }, []);
 
     // =========================
-    // POST
+    // CREATE / UPDATE
     // =========================
-    async function cadastrarProduto(event) {
-        event.preventDefault();
+    async function salvarProduto(e) {
+        e.preventDefault();
 
-        const novoProduto = {
+        const dados = {
               nome,
               preco,
-              estoque: 1,       // ⚠️ obrigatório no backend
-              categoria: "geral" // ⚠️ obrigatório no backend
+              estoque,
+              categoria,
             };
 
           try {
-                await fetch(API_URL, {
-                        method: "POST",
-                        headers: {
-                                  "Content-Type": "application/json",
-                                },
-                        body: JSON.stringify(novoProduto),
-                      });
+                if (editandoId) {
+                        await fetch(`${API_URL}/${editandoId}`, {
+                                  method: "PUT",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify(dados),
+                                });
+                          alert("Produto atualizado!");
+                        } else {
+                                await fetch(API_URL, {
+                                          method: "POST",
+                                          headers: { "Content-Type": "application/json" },
+                                          body: JSON.stringify(dados),
+                                        });
+                                  alert("Produto criado!");
+                                }
 
-                  alert("Produto cadastrado com sucesso!");
-
-                  setNome("");
-                  setPreco("");
-
-                  buscarProdutos();
-                } catch (erro) {
-                      console.log("Erro ao cadastrar:", erro);
-                    }
-        }
-
-    // =========================
-    // PREPARAR EDIÇÃO
-    // =========================
-    function prepararEdicao(produto) {
-        setIdEditando(produto.id);
-        setNomeEditado(produto.nome);
-        setPrecoEditado(produto.preco);
-      }
-
-    // =========================
-    // PUT
-    // =========================
-    async function salvarEdicao(event) {
-        event.preventDefault();
-
-        const produtoAtualizado = {
-              nome: nomeEditado,
-              preco: precoEditado,
-              estoque: 1,
-              categoria: "geral",
-            };
-
-          try {
-                await fetch(`${API_URL}/${idEditando}`, {
-                        method: "PUT",
-                        headers: {
-                                  "Content-Type": "application/json",
-                                },
-                        body: JSON.stringify(produtoAtualizado),
-                      });
-
-                  alert("Produto atualizado!");
-
-                  setIdEditando(null);
-                  setNomeEditado("");
-                  setPrecoEditado("");
-
-                  buscarProdutos();
-                } catch (erro) {
-                      console.log("Erro ao editar:", erro);
+                  limparFormulario();
+                  carregarProdutos();
+                } catch (err) {
+                      alert("Erro ao salvar produto");
                     }
         }
 
     // =========================
     // DELETE
     // =========================
-    async function excluirProduto(id) {
-        const confirmar = confirm("Deseja excluir este produto?");
-
-        if (!confirmar) return;
+    async function deletarProduto(id) {
+        if (!confirm("Deseja deletar este produto?")) return;
 
         try {
               await fetch(`${API_URL}/${id}`, {
                       method: "DELETE",
                     });
 
-              alert("Produto excluído!");
-
-              buscarProdutos();
-            } catch (erro) {
-                  console.log("Erro ao excluir:", erro);
+              carregarProdutos();
+            } catch (err) {
+                  alert("Erro ao deletar");
                 }
+        }
+
+    // =========================
+    // EDITAR
+    // =========================
+    function editarProduto(produto) {
+        setEditandoId(produto.id);
+        setNome(produto.nome);
+        setPreco(produto.preco);
+        setEstoque(produto.estoque);
+        setCategoria(produto.categoria);
+      }
+
+    function limparFormulario() {
+        setEditandoId(null);
+        setNome("");
+        setPreco("");
+        setEstoque("");
+        setCategoria("");
+      }
+
+    // =========================
+    // BUSCA
+    // =========================
+    async function buscarProdutos() {
+        if (!buscaValor) {
+              carregarProdutos();
+              return;
+            }
+
+          setLoading(true);
+
+          try {
+                const url =
+                  buscaTipo === "nome"
+                    ? `${API_URL}/nome/${buscaValor}`
+                    : `${API_URL}/${buscaValor}`;
+
+                const res = await fetch(url);
+                let data = await res.json();
+
+                if (!Array.isArray(data)) {
+                        data = data ? [data] : [];
+                      }
+
+                  setProdutos(data);
+                } catch (err) {
+                      alert("Erro na busca");
+                    } finally {
+                          setLoading(false);
+                        }
         }
 
     // =========================
@@ -133,13 +150,12 @@ function Listagem() {
     // =========================
     return (
         <div>
-          <h1>Lista de Produtos</h1>
 
-          {/* ================= FORM CADASTRO ================= */}
-          <form onSubmit={cadastrarProduto}>
+          <h2>{editandoId ? `Editando Produto #${editandoId}` : "Adicionar Produto"}</h2>
+
+          <form onSubmit={salvarProduto}>
             <input
-              type="text"
-              placeholder="Nome do produto"
+              placeholder="Nome"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
             />
@@ -151,45 +167,75 @@ function Listagem() {
               onChange={(e) => setPreco(e.target.value)}
             />
 
-            <button type="submit">Cadastrar</button>
+            <input
+              type="number"
+              placeholder="Estoque"
+              value={estoque}
+              onChange={(e) => setEstoque(e.target.value)}
+            />
+
+            <input
+              placeholder="Categoria"
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value)}
+            />
+
+            <button type="submit">
+              {editandoId ? "Atualizar" : "Salvar"}
+            </button>
+
+            <button type="button" onClick={limparFormulario}>
+              Limpar
+            </button>
           </form>
 
-          {/* ================= LISTA ================= */}
-          {produtos.map((produto) => (
-                  <div key={produto.id}>
-                    <h2>{produto.nome}</h2>
-                    <p>Preço: R$ {produto.preco}</p>
 
-                    <button onClick={() => prepararEdicao(produto)}>
-                      Editar
-                    </button>
+          <h2>Lista de Produtos</h2>
 
-                    <button onClick={() => excluirProduto(produto.id)}>
-                      Excluir
-                    </button>
+          <button onClick={carregarProdutos}>
+            🔄 Recarregar
+          </button>
+
+          {loading && <p>Carregando...</p>}
+
+          {produtos.length === 0 && !loading && (
+                  <p>Nenhum produto encontrado</p>
+                )}
+
+          {produtos.map((p) => (
+                  <div key={p.id}>
+                    <p>ID: {p.id}</p>
+                    <p>Nome: {p.nome}</p>
+                    <p>Preço: R$ {Number(p.preco).toFixed(2)}</p>
+                    <p>Estoque: {p.estoque}</p>
+                    <p>Categoria: {p.categoria}</p>
+
+                    <button onClick={() => editarProduto(p)}>✏️</button>
+                    <button onClick={() => deletarProduto(p.id)}>🗑️</button>
                   </div>
                 ))}
 
-          {/* ================= FORM EDIÇÃO ================= */}
-          {idEditando && (
-                  <form onSubmit={salvarEdicao}>
-                    <h3>Editando produto</h3>
 
-                    <input
-                      type="text"
-                      value={nomeEditado}
-                      onChange={(e) => setNomeEditado(e.target.value)}
-                    />
+          <h2>Buscar Produtos</h2>
 
-                    <input
-                      type="number"
-                      value={precoEditado}
-                      onChange={(e) => setPrecoEditado(e.target.value)}
-                    />
+          <select
+            value={buscaTipo}
+            onChange={(e) => setBuscaTipo(e.target.value)}
+          >
+            <option value="nome">Nome</option>
+            <option value="id">ID</option>
+          </select>
 
-                    <button type="submit">Salvar edição</button>
-                  </form>
-                )}
+          <input
+            placeholder="Digite a busca"
+            value={buscaValor}
+            onChange={(e) => setBuscaValor(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && buscarProdutos()}
+          />
+
+          <button onClick={buscarProdutos}>Buscar</button>
+          <button onClick={carregarProdutos}>Mostrar todos</button>
+
         </div>
       );
 }
