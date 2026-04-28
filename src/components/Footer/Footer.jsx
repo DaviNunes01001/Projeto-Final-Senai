@@ -2,7 +2,7 @@ import styles from './Footer.module.css';
 
 import {FaFacebookF, FaTwitter, FaGooglePlusG, FaLinkedinIn} from 'react-icons/fa';
 
-const Footer = () => {
+function Footer()  {
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API_URL from "../../../services/api";
 import styles from "./listagem.module.css";
+import Footer from "../Footer/Footer";
 
 function Listagem() {
   // =========================
@@ -150,6 +151,7 @@ function Listagem() {
   // RENDER
   // =========================
   return (
+    <>
     <div className={styles.containerALL}>
       <h2 className={styles.titulo}>
         {editandoId ? `Editando Produto #${editandoId}` : "Adicionar Produto"}
@@ -241,6 +243,8 @@ function Listagem() {
       <button onClick={carregarProdutos}>Mostrar todos</button>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }
 
