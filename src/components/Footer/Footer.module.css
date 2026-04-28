@@ -1,0 +1,93 @@
+.footer {
+    background-color: #1a2530;
+    color: #a8b5c8;
+    padding: 60px 0 20px;
+    padding: 60px 0 20px;
+    font-size: 0.95rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 40px;
+}
+
+.column h3{
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.column p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.column ul{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.column ul li{
+    margin-bottom: 10px;
+}
+
+.column ul li a {
+    color: #a8b5c8;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.column ul li a:hover{
+    color: #fff;
+}
+
+.contactInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.bottom {
+    border-top: 1px solid #2a3744;
+    margin-top: 50px;
+    padding-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.9rem;
+}
+
+.socialIcons {
+    display: flex;
+    gap: 12px;
+}
+
+.socialIcons a{
+    color: #a8b5c8;
+    font-size: 1.4rem;
+    transition: all 0.3s;
+}
+
+.socialIcons a:hover{
+    color: #fff;
+    transform: translateY(-3px);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .bottom{
+        flex-direction: column;
+        text-align: center;
+    }
+}
