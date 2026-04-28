@@ -29,6 +29,14 @@ function Contato() {
                 </div>
             </div>
             <div className='conta'> 
+                <h2>Contate-nos diretamente</h2>
+                <form action="#">
+                    Email
+                    <input type="text" placeholder='seu nome' required></input>
+                    <input type="email" placeholder='email' required></input>
+                    <textarea placeholder='sua mensagem' rows="6" required></textarea>
+                    <button type='submit'>Enviar</button>
+                </form>
             </div>
         
         </>
