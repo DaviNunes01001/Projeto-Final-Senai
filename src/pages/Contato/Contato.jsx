@@ -1,11 +1,8 @@
 import styles from './Contato.module.css'
-import Header from '../../components/Header/Header' 
-import Footer from '../../components/Footer/Footer'
 
 function Contato() {
     return (
         <>
-            <Header />
             <div className={styles.contato}>
                 <h1>Entre em Contato</h1>
                 <p>Estamos aqui para ajudar, Fale conosco!</p>
@@ -41,7 +38,6 @@ function Contato() {
                 </form>
             </div>
 
-            <Footer />
         
         </>
     )
