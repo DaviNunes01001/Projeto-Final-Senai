@@ -1,4 +1,3 @@
-import './Sobre.module.css'
 
 function Sobre() {
   return (
