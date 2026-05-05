@@ -31,6 +31,11 @@ body {
   font-size: 2.5rem;
 }
 
+.hero p,
+.card p {
+  color: black;
+}
+
 .hero button {
   margin-top: 20px;
   padding: 10px 20px;

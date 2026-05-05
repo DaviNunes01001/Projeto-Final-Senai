@@ -91,6 +91,11 @@
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
+.card p {
+  font-size: 14px;
+  color: black;
+}
+
 /* BOTÕES DO CARD */
 .actions {
   display: flex;
