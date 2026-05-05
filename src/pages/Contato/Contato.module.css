@@ -51,6 +51,7 @@ body {
     text-align: center;
     transition: all 0.3s ease;
     border: 1px solid #e2e8f0;
+    margin-top: 30px;
 }
 
 .card:hover {
@@ -133,6 +134,12 @@ button {
 button:hover {
     transform: translateX(-3px);
     box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+
+.contato h1, p{
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 @media (max-width: 640px) {
